@@ -75,31 +75,32 @@ add_filter( 'submit_listing_steps', 'cls_modify_submission_steps', 20 );
 /**
  * Automated fetching (auto fetch) of Listing Types.
  *
- * Assumes that listing types are stored as terms in a taxonomy, e.g., 'listing_category'.
- *
  * @return array Array [slug => name] of listing types.
  */
 function cls_auto_fetch_listing_types() {
-    $args = array(
-        'taxonomy'   => 'listing_category', // Αντικατέστησε το 'listing_category' με το σωστό taxonomy αν χρειάζεται.
-        'hide_empty' => false,
-    );
-    $terms = get_terms( $args );
+    global $wpdb;
     
-    if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
-        $listing_types = array();
-        foreach ( $terms as $term ) {
-            $listing_types[ $term->slug ] = $term->name;
+    $results = $wpdb->get_col( "SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key = '_listing_type'" );
+    
+    $listing_types = array();
+    if ( ! empty( $results ) ) {
+        foreach ( $results as $value ) {
+            $listing_types[$value] = ucfirst($value);
         }
-        return $listing_types;
     }
-    return array(
-       'service'     => 'Service',
-       'rental'      => 'Rental',
-       'event'       => 'Event',
-       'classifieds' => 'Classifieds'
-    );
+    
+    if ( empty( $listing_types ) ) {
+        $listing_types = array(
+            'service'     => 'Service',
+            'rental'      => 'Rental',
+            'event'       => 'Event',
+            'classifieds' => 'Classifieds'
+        );
+    }
+    
+    return $listing_types;
 }
+
 
 
 /**

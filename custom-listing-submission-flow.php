@@ -75,15 +75,17 @@ add_filter( 'submit_listing_steps', 'cls_modify_submission_steps', 20 );
 /**
  * Automated fetching (auto fetch) of Listing Types.
  *
- * Assumes that listing types are stored as terms in a taxonomy, e.g., 'listing_type'.
+ * Assumes that listing types are stored as terms in a taxonomy, e.g., 'listing_category'.
  *
  * @return array Array [slug => name] of listing types.
  */
 function cls_auto_fetch_listing_types() {
     $args = array(
+        'taxonomy'   => 'listing_category', // Αντικατέστησε το 'listing_category' με το σωστό taxonomy αν χρειάζεται.
         'hide_empty' => false,
     );
-    $terms = get_terms( 'listing_type', $args );
+    $terms = get_terms( $args );
+    
     if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
         $listing_types = array();
         foreach ( $terms as $term ) {
@@ -91,7 +93,6 @@ function cls_auto_fetch_listing_types() {
         }
         return $listing_types;
     }
-    // Return default values if no terms are found.
     return array(
        'service'     => 'Service',
        'rental'      => 'Rental',
@@ -99,6 +100,7 @@ function cls_auto_fetch_listing_types() {
        'classifieds' => 'Classifieds'
     );
 }
+
 
 /**
  * Update the Listing Type selection field with dynamic values.
